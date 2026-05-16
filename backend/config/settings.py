@@ -39,9 +39,13 @@ DATABASES = {
 SECRET_KEY = 'django-insecure-l1$*)mpd2s0sub0d7z98_fd1)7($z*7m*vs1!xn&lv6*n7$9u9'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    ".onrender.com"
+]
 
 
 # Application definition
