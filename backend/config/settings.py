@@ -48,8 +48,6 @@ ALLOWED_HOSTS = [
 ]
 
 
-
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -163,4 +161,5 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://192.168.100.73:3000",
+    "https://capere-v1.vercel.app"
 ]
