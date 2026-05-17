@@ -4,18 +4,37 @@ import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
+type HomeData = {
+  recent_events: any[];
+  top_modules: { event_category: string; count: number }[];
+  last_event: string | null;
+};
+
 export default function HomePage() {
   const [backendStatus, setBackendStatus] = useState("Checking...");
-  const [level, setLevel] = useState("");
+  const [homeData, setHomeData] = useState<HomeData | null>(null);
 
   useEffect(() => {
+    // 1. Health check
     fetch("https://capere-v1-backend.onrender.com/api/health/")
       .then((res) => {
-        if (!res.ok) throw new Error("Network response failed");
+        if (!res.ok) throw new Error();
         return res.json();
       })
       .then(() => setBackendStatus("Connected"))
       .catch(() => setBackendStatus("Backend Error"));
+
+    // 2. Institutional memory fetch
+    fetch("https://capere-v1-backend.onrender.com/api/v1/events/home/", {
+      headers: {
+        Authorization: `Bearer YOUR_TOKEN_HERE`, // replace later with auth state
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.data) setHomeData(data.data);
+      })
+      .catch(() => setHomeData(null));
   }, []);
 
   return (
@@ -24,12 +43,11 @@ export default function HomePage() {
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
         className="w-full max-w-xl"
       >
 
         {/* HEADER */}
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 mb-6">
           <div className="bg-white text-black p-2 rounded-2xl">
             <Sparkles size={24} />
           </div>
@@ -37,7 +55,7 @@ export default function HomePage() {
           <div>
             <h1 className="text-3xl font-bold">Capere</h1>
             <p className="text-gray-400 text-sm">
-              Adaptive Educational Intelligence
+              Adaptive Institutional Intelligence
             </p>
           </div>
         </div>
@@ -45,59 +63,78 @@ export default function HomePage() {
         {/* STATUS */}
         <p className="text-sm mb-4 text-gray-400">
           Backend:{" "}
-          <span
-            className={
-              backendStatus === "Connected"
-                ? "text-green-400"
-                : "text-red-400"
-            }
-          >
+          <span className={backendStatus === "Connected" ? "text-green-400" : "text-red-400"}>
             {backendStatus}
           </span>
         </p>
 
-        {/* CARD */}
+        {/* CONTINUE CARD */}
         <motion.div
           initial={{ scale: 0.95 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="bg-zinc-900 border border-zinc-800 rounded-3xl p-8 shadow-2xl"
+          className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-4"
         >
-
-          {/* TITLE */}
-          <h2 className="text-2xl font-bold mb-2">
-            Let’s personalize your learning experience
+          <h2 className="text-xl font-semibold mb-2">
+            Continue your work
           </h2>
 
-          <p className="text-gray-400 mb-6">
-            Capere adapts to your goals and learning style.
+          <p className="text-gray-400 text-sm mb-4">
+            {homeData?.last_event
+              ? `Last session: ${homeData.last_event}`
+              : "No previous activity yet"}
           </p>
 
-          {/* INPUT */}
-          <label className="block text-sm text-gray-400 mb-2">
-            What level are you in?
-          </label>
-
-          <input
-            value={level}
-            onChange={(e) => setLevel(e.target.value)}
-            type="text"
-            placeholder="Primary, Secondary, College..."
-            className="w-full bg-zinc-800 border border-zinc-700 rounded-2xl px-5 py-4 text-lg outline-none focus:border-white transition mb-6"
-          />
-
-          {/* BUTTON */}
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="w-full bg-white text-black py-4 rounded-2xl font-semibold text-lg"
-            onClick={() => {
-              alert(`Level saved: ${level}`);
-            }}
-          >
+          <button className="w-full bg-white text-black py-3 rounded-2xl font-semibold">
             Continue
-          </motion.button>
+          </button>
+        </motion.div>
 
+        {/* TOP MODULES */}
+        <motion.div
+          className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 mb-4"
+        >
+          <h2 className="text-lg font-semibold mb-3">
+            Frequently used modules
+          </h2>
+
+          <div className="space-y-2">
+            {homeData?.top_modules?.length ? (
+              homeData.top_modules.map((m, i) => (
+                <div
+                  key={i}
+                  className="flex justify-between text-sm text-gray-300"
+                >
+                  <span>{m.event_category || "unknown"}</span>
+                  <span className="text-gray-500">{m.count}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">
+                No usage data yet
+              </p>
+            )}
+          </div>
+        </motion.div>
+
+        {/* RECENT ACTIVITY */}
+        <motion.div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6">
+          <h2 className="text-lg font-semibold mb-3">
+            Recent activity
+          </h2>
+
+          <div className="space-y-2 max-h-40 overflow-auto">
+            {homeData?.recent_events?.length ? (
+              homeData.recent_events.map((e, i) => (
+                <div key={i} className="text-xs text-gray-400">
+                  {e.event_type} • {e.created_at}
+                </div>
+              ))
+            ) : (
+              <p className="text-gray-500 text-sm">
+                No events yet
+              </p>
+            )}
+          </div>
         </motion.div>
 
       </motion.div>

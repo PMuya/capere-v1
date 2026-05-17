@@ -17,5 +17,22 @@ class User(AbstractUser):
         default=Role.STUDENT
     )
 
+    # 🔥 ADD THIS
+    school = models.ForeignKey(
+        "schools.School",
+        on_delete=models.CASCADE,
+        related_name="users",
+        null=True,
+        blank=True
+    )
+
+    institution = models.ForeignKey(
+    "events.Institution",
+    on_delete=models.CASCADE,
+    null=True,
+    blank=True,
+    related_name="users"
+)
+
     def __str__(self):
         return f"{self.username} ({self.role})"

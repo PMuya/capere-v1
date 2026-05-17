@@ -11,4 +11,6 @@ urlpatterns = [
 
     path('api/v1/users/', include('apps.users.urls')),
     path('api/v1/onboarding/', include('apps.onboarding.urls')),
+
+    path("api/v1/events/", include("events.urls")),
 ]
