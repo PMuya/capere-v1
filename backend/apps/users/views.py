@@ -1,44 +1,32 @@
-from rest_framework import generics
-from .models import User
-from .serializers import UserSerializer, UserLoginSerializer
-from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.response import Response
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework.views import APIView
-from .permissions import IsTeacher
+from rest_framework.response import Response
+from rest_framework import status
+
+from .serializers import RegisterSerializer, LoginSerializer
 
 
-class TeacherOnlyView(APIView):
-    permission_classes = [IsTeacher]
+# -----------------------------
+# REGISTER VIEW
+# -----------------------------
+class RegisterView(APIView):
+    def post(self, request):
+        serializer = RegisterSerializer(data=request.data)
 
-    def get(self, request):
-        return Response({"message": "Welcome Teacher"})
-    
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"message": "User created"}, status=201)
 
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+        return Response(serializer.errors, status=400)
 
-    def perform_create(self, serializer):
-        password = self.request.data.get("password")
-        role = self.request.data.get("role", "STUDENT")
 
-        user = serializer.save(role=role)
-        user.set_password(password)
-        user.save()
+# -----------------------------
+# LOGIN VIEW
+# -----------------------------
+class LoginView(APIView):
+    def post(self, request):
+        serializer = LoginSerializer(data=request.data)
 
-class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    def validate(self, attrs):
-        data = super().validate(attrs)
+        if serializer.is_valid():
+            return Response(serializer.validated_data, status=200)
 
-        user_data = UserLoginSerializer(self.user).data
-
-        data.update({
-            "user": user_data
-        })
-
-        return data
-    
-class CustomTokenObtainPairView(TokenObtainPairView):
-    serializer_class = CustomTokenObtainPairSerializer
-
+        return Response(serializer.errors, status=400)
