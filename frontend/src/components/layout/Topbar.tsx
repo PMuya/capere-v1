@@ -10,7 +10,7 @@ export default function Topbar() {
     <header className="h-20 border-b border-white/10 bg-white/5 backdrop-blur-xl flex items-center justify-between px-8">
 
       {/* SEARCH */}
-      <div className="flex items-center gap-3 bg-black/30 border border-white/10 rounded-2xl px-4 py-3 w-[400px]">
+      <div className="flex items-center gap-3 bg-black/30 border border-white/10 rounded-2xl px-4 py-3 w-100">
         <Search size={18} className="text-zinc-400" />
 
         <input
@@ -36,7 +36,7 @@ export default function Topbar() {
           </p>
         </div>
 
-        <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-zinc-200 to-zinc-500" />
+        <div className="h-12 w-12 rounded-2xl bg-linear-to-br from-zinc-200 to-zinc-500" />
       </div>
     </header>
   );

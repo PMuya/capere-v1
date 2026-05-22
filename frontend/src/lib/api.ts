@@ -1,5 +1,10 @@
-const BASE_URL = "http://127.0.0.1:8000/api/v1";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
+if (!BASE_URL) {
+  throw new Error("NEXT_PUBLIC_API_URL is not defined");
+}
+
+// ---------------- REGISTER ----------------
 export async function registerUser(data: any) {
   const res = await fetch(`${BASE_URL}/auth/register/`, {
     method: "POST",
@@ -12,6 +17,7 @@ export async function registerUser(data: any) {
   return res.json();
 }
 
+// ---------------- LOGIN ----------------
 export async function loginUser(data: any) {
   const res = await fetch(`${BASE_URL}/auth/login/`, {
     method: "POST",
