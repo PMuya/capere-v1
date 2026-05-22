@@ -17,22 +17,24 @@ class User(AbstractUser):
         default=Role.STUDENT
     )
 
-    # 🔥 ADD THIS
-    school = models.ForeignKey(
-        "schools.School",
-        on_delete=models.CASCADE,
-        related_name="users",
-        null=True,
-        blank=True
-    )
-
     institution = models.ForeignKey(
-    "events.Institution",
-    on_delete=models.CASCADE,
-    null=True,
-    blank=True,
-    related_name="users"
-)
+        "users.Institution",
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="users"
+    )
 
     def __str__(self):
         return f"{self.username} ({self.role})"
+    
+class Institution(models.Model):
+
+    name = models.CharField(max_length=255)
+    code = models.CharField(max_length=50, unique=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name

@@ -34,6 +34,10 @@ def home_context(request):
 
     user = request.user
 
+    print("AUTH USER:", user)
+    print("IS AUTHENTICATED:", user.is_authenticated)
+
+
     # recent activity
     recent_events = Event.objects.filter(user=user).order_by("-created_at")[:10]
 

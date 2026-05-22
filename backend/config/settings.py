@@ -40,6 +40,8 @@ INSTALLED_APPS = [
 
     'events',
     'schools',
+    'subjects',
+    'apps.curriculum',
 ]
 
 # -------------------------
@@ -98,6 +100,10 @@ TEMPLATES = [
 # -------------------------
 AUTH_USER_MODEL = "users.User"
 
+AUTHENTICATION_BACKENDS = [
+    "django.contrib.auth.backends.ModelBackend",
+]
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -117,6 +123,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "http://192.168.100.73:3000",
+    "http://192.168.100.37:3000",
     "https://capere-v1.vercel.app",
 ]
 

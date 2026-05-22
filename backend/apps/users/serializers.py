@@ -3,49 +3,57 @@ from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
-from events.models import Institution
+from .models import Institution
 
 
-# -----------------------------
-# REGISTER USER
-# -----------------------------
-class RegisterSerializer(serializers.ModelSerializer):
+# =========================================
+# REGISTER SERIALIZER
+# =========================================
+class RegisterSerializer(serializers.Serializer):
+
+    # Institution fields
+    institution_name = serializers.CharField()
+    institution_code = serializers.CharField()
+
+    # User fields
+    username = serializers.CharField()
+    email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    institution_code = serializers.CharField(write_only=True)
-
-    class Meta:
-        model = User
-        fields = ["username", "email", "password", "role", "institution_code"]
 
     def create(self, validated_data):
-        institution_code = validated_data.pop("institution_code")
 
-        try:
-            institution = Institution.objects.get(code=institution_code)
-        except Institution.DoesNotExist:
-            raise serializers.ValidationError("Institution not found")
+        # -----------------------------
+        # CREATE INSTITUTION
+        # -----------------------------
+        institution = Institution.objects.create(
+            name=validated_data["institution_name"],
+            code=validated_data["institution_code"]
+        )
 
+        # -----------------------------
+        # CREATE FIRST ADMIN USER
+        # -----------------------------
         user = User.objects.create_user(
             username=validated_data["username"],
             email=validated_data["email"],
             password=validated_data["password"],
-            role=validated_data.get("role", "STUDENT"),
+            role="SUPER_ADMIN",
+            institution=institution
         )
-
-        # attach institution dynamically (we will refine later)
-        user.save()
 
         return user
 
 
-# -----------------------------
-# LOGIN USER
-# -----------------------------
+# =========================================
+# LOGIN SERIALIZER
+# =========================================
 class LoginSerializer(serializers.Serializer):
+
     username = serializers.CharField()
     password = serializers.CharField()
 
     def validate(self, data):
+
         user = authenticate(
             username=data["username"],
             password=data["password"]
@@ -59,9 +67,17 @@ class LoginSerializer(serializers.Serializer):
         return {
             "access": str(refresh.access_token),
             "refresh": str(refresh),
+
             "user": {
                 "id": user.id,
                 "username": user.username,
-                "role": user.role
+                "email": user.email,
+                "role": user.role,
+
+                "institution": {
+                    "id": user.institution.id,
+                    "name": user.institution.name,
+                    "code": user.institution.code,
+                } if user.institution else None
             }
         }
